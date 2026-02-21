@@ -1,0 +1,11 @@
+<Solution>
+  <Folder Name="/Common Projects/">
+    <Project Path="Common/Common.shproj" />
+    <Project Path="ProloAPI/ProloAPI.shproj" Id="cca408b5-118c-4c25-96dc-6dbd9127bb62" />
+  </Folder>
+  <Folder Name="/Mod Projects/">
+    <Project Path="Master/Master.csproj" Id="8d9e3f76-14bd-433d-99b7-f01d79741792" />
+    <Project Path="[HS2] Body Double/[HS2] Body Double.csproj" Id="90ea90d8-e147-4df4-accd-4353a77c3818" />
+    <Project Path="[KKS] Body Double/[KKS] Body Double.csproj" Id="32d24924-5757-4078-b62f-4526f98772ef" />
+  </Folder>
+</Solution>

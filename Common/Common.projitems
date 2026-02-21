@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>049fec1c-cc0f-4644-bf09-2dd756450931</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>BodyDouble</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)BodyDouble.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BodyDouble_Controller.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BodyDouble_GUI.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)BodyDouble_Hooks.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SaveLoadManager.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\ultra instinct.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="$(MSBuildThisFileDirectory)Resources\Super_Saiyan_Goku.png" />
+  </ItemGroup>
+</Project>
