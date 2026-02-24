@@ -12,6 +12,7 @@ using ProloAPI;
 namespace BodyDouble
 {
     using static BodyDouble_Core;
+    using static BodyDouble_Controller;
     using static BepInEx.Logging.LogLevel;
 
     public class CurrentSaveLoadManager : SaveLoadManager<BodyDouble_Controller, PluginData>
@@ -44,7 +45,8 @@ namespace BodyDouble
 
                 if(data.version != Version) throw new Exception($"Target data was incorrect version: expected [V{Version}] instead of [V{data.version}]");
 
-                var cardData = LZ4MessagePackSerializer.Deserialize<Dictionary<string, BodyDouble_Controller.BodyDoubleData>>((byte[])data.data[DataKeys[(int)LoadDataType.Data]]);
+                var cardData = LZ4MessagePackSerializer.Deserialize<Dictionary<string, BodyDoubleData>>
+                    ((byte[])data.data[DataKeys[(int)LoadDataType.Data]]);
 
                 foreach(var kvp in cardData)
                     ctrler.AddBodyDouble(kvp.Value);
@@ -70,7 +72,7 @@ namespace BodyDouble
                 foreach(var bit in ctrler.data)
                     bit.Value?.extras?.Clear(); //don't save extras, since they are not needed and can cause issues with serialization
 
-                data.data[DataKeys[0]] = LZ4MessagePackSerializer.Serialize(ctrler.data);
+                data.data[DataKeys[(int)LoadDataType.Data]] = LZ4MessagePackSerializer.Serialize(ctrler.data);
             }
             catch(Exception e)
             {

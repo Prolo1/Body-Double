@@ -19,6 +19,7 @@ using ProloAPI.Extensions;
 using TMPro;
 
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 using static ProloAPI.Utilities.PGeneral;
 using static ProloAPI.Utilities.PGUI;
@@ -38,7 +39,7 @@ namespace BodyDouble
 
         public const string GUID = "prolo.bodydouble";//NEVER CHANGE THIS
         public const string ModName = "Body Double";
-        public const string Version = "0.1.0";
+        public const string Version = "0.0.1";
         public const string Description =
             @"Adds the ability to save character cards to another " +
             @"character card and load by category (i.e. face, body, hair...).";
@@ -93,7 +94,7 @@ namespace BodyDouble
                 openFloatingMenu = binding.Bind<KeyboardShortcut>("", "Open Floating Menu Shortcut", new KeyboardShortcut(KeyCode.D, KeyCode.LeftControl, KeyCode.LeftShift), "The keyboard shortcut used to open the Body Double floating menu."),
 
                 //studio
-                enableBGUI = binding.Bind<bool>("", "Enable Body Double Studio UI", true, "If enabled, the Body Double Studio UI will be available in the Character Maker Studio."),
+                enableBGUI = binding.Bind<bool>("", "Enable Custom Background Image", false, "If enabled, the Body Double Studio UI will be available in the Character Maker Studio."),
                 useCreatorDefaultBG = binding.Bind<bool>("", "Use Creator Default Background", false, "If enabled, the default background of the Character Creator will be used instead of a custom image."),
                 bgUIImagePath = binding.Bind<string>("", "Background Image Path", "", "The path to the background image used in the Body Double Studio UI."),
                 floatingUIWidth = binding.Bind<float>("", "Studio UI Width", 0.5f, "The width of the Body Double Studio UI."),
@@ -110,7 +111,13 @@ namespace BodyDouble
                 resetOnLaunch = binding.Bind<bool>("", "Reset On Launch", false, "If enabled, on the next launch all Body Double data will be reset. This value will then be reset to false."),
                 debug = binding.Bind<bool>("", "Debug", false, "If enabled, debug logs will be printed to the BepInEx log file."),
                 enableTooltips = binding.Bind<bool>("", "Enable Tooltips", true, "If enabled, tooltips will be shown for Body Double Studio UI elements."),
-                viewportUISpace = binding.Bind<float>("", "Viewport UI Space", 0.65f, "The percent of vertical space the scrollable Maker UI window will occupy in the viewport."),
+                viewportUISpace = binding.Bind<float>("", "Viewport UI Space",
+#if HONEY_API
+                    0.39f,
+#elif KOI_API
+                    0.65f,
+#endif
+                "The percent of vertical space the scrollable Maker UI window will occupy in the viewport."),
 
             };
 
@@ -162,11 +169,17 @@ namespace BodyDouble
             BodyDouble_GUI.Init();
         }
 
+        Scene lastScene;
         void Update()
         {
             if(cfg.openFloatingMenu.Value.IsDown())
                 BodyDouble_GUI.enableImmediateUI = !BodyDouble_GUI.enableImmediateUI;
 
+            if(SceneManager.GetActiveScene() != lastScene)
+            {
+                BodyDouble_GUI.enableImmediateUI = false;
+                lastScene = SceneManager.GetActiveScene();
+            }
         }
     }
 }

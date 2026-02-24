@@ -49,18 +49,23 @@
   <ItemGroup>
     <PackageReference Include="IllusionLibs.HoneySelect2.AllPackages">
       <Version>2020.5.29.5</Version>
+      <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="IllusionModdingAPI.HS2API">
       <Version>1.45.1</Version>
+      <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="ABMX.HS2ABMX">
       <Version>5.4.0</Version>
+      <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="ExtensibleSaveFormat.HoneySelect2">
       <Version>21.1.2</Version>
+      <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="IllusionLibs.BepInEx">
       <Version>5.4.22</Version>
+      <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
   </ItemGroup>
   <Import Project="..\Common\Common.projitems" Label="Shared" />

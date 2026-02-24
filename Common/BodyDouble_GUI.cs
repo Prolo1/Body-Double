@@ -39,13 +39,6 @@ using System.Runtime.Remoting.Contexts;
 
 
 
-
-
-
-
-
-
-
 #if HONEY_API
 using AIChara;
 
@@ -158,8 +151,8 @@ namespace BodyDouble
 
                     customUI.Invoke();
 
-                    winRec = IMGUIUtils.DragResizeEatWindow(id, winRec);
 
+                    winRec = IMGUIUtils.DragResizeEatWindow(id, winRec);
 
                     if(!cfg.makerWinRec.Value.Equals(winRec))
                         cfg.makerWinRec.Value = new Rect(winRec);
@@ -320,7 +313,7 @@ namespace BodyDouble
             Vector2 toolPos = Vector2.zero;
             int selectedChar = 0;
             int skipFrames = -1;
-            //BodyDouble_Controller bodCtrl = null;
+            BodyDouble_Controller bodCtrl = null;
             GUIStyle tmpSty = null;
             GUIStyle tabstyle = null;
             GUIStyle toggleStyle = null;
@@ -365,6 +358,7 @@ namespace BodyDouble
                         coordinate = true,
                         perameter = false
                     };
+                    var tglPos = Vector2.zero;
                     #endregion
 
                     //GUI Update Loop
@@ -582,7 +576,7 @@ namespace BodyDouble
 
 
                             //Section Load Toggles
-                            GUILayout.BeginScrollView(new Vector2());
+                            tglPos = GUILayout.BeginScrollView(tglPos);
                             GUILayout.BeginHorizontal();
                             partFields.body = GUILayout.Toggle(partFields.body, "Body", toggleStyle);
                             partFields.face = GUILayout.Toggle(partFields.face, "Face", toggleStyle);
@@ -927,6 +921,7 @@ namespace BodyDouble
                     coordinate = true,
                     perameter = false
                 };
+                var tglPos = Vector2.zero;
                 #endregion
 
                 //GUI Update Loop
@@ -1042,11 +1037,6 @@ namespace BodyDouble
 
                         #region Mid
                         //Card view Window
-                        scrollPos = GUILayout.BeginScrollView(scrollPos, false, true,
-                            //GUILayout.Height((winRec.height - txtH) * .65f),
-                            GUILayout.ExpandWidth(true),
-                            GUILayout.ExpandHeight(true)
-                            );
 
                         //Character choices
                         var lists = (IEnumerable<BodyDouble_Controller>)null;
@@ -1074,6 +1064,48 @@ namespace BodyDouble
                                 bodies[body.Key] = body.Key.cardData.LoadTexture();
                             if(cfg.debug.Value) Logger.LogDebug("the costumes have updated");
                         }
+
+                        #region Tabs
+                        var name = "";
+                        var names = new string[] { "All" };
+                        names = names.Concat(lists.Select(ctrl => TranslationHelper.TryTranslate(name = ctrl.ChaFileControl.parameter.fullname, out var trans) ? trans : name)).ToArray();
+
+                        float h = 25.0f;
+                        float bar = 15.0f;
+
+                        toolPos = GUILayout.BeginScrollView(toolPos, true, false, GUI.skin.horizontalScrollbar, GUIStyle.none, GUILayout.Height(h + bar), GUILayout.ExpandWidth(true));
+
+                        var selec = GUILayout.Toolbar(selectedChar, names, tabstyle, GUILayout.ExpandHeight(false), GUILayout.Width(winRec.width * 0.2f * names.Length));
+
+                        GUILayout.EndScrollView();
+
+                        //tab changed
+                        if(selec != selectedChar)
+                        {
+                            selectedChar = selec;
+
+                            if(names.Length > 0 && !names.InRange(selec))
+                                selectedChar = selec = Mathf.Clamp(selec, 0, names.Length);
+
+                            var mctrl = lists.InRange(selec - 1) ? lists.ElementAt(selec - 1) : null;
+                            skipFrames = (bodCtrl == null) != (mctrl == null) ? 3 : 0;
+                            bodCtrl = mctrl;
+
+
+                            //	Logger.LogMessage(ctrl ? "New Tab Selected" : "No Tab selected");
+
+                            //Extra Code Here...
+                            skipFrames = 3;
+                            return;
+                        }
+
+                        #endregion
+
+                        scrollPos = GUILayout.BeginScrollView(scrollPos, false, true,
+                            //GUILayout.Height((winRec.height - txtH) * .65f),
+                            GUILayout.ExpandWidth(true),
+                            GUILayout.ExpandHeight(true)
+                            );
 
                         if(bodies.Count > 0)
                         {
@@ -1113,17 +1145,18 @@ namespace BodyDouble
                             myStyle.focused.textColor = Color.cyan;
                             myStyle.wordWrap = true;
 
+
                             float w = (winRec.width - (100 * cfg.floatingUIWidth.Value));
-                            float h = ((w == 0 ? .001f : w) / 3 * 1.5f * Mathf.Ceil(content.Length / 3.0f));
+                            float h1 = ((w == 0 ? .001f : w) / 3 * 1.5f * Mathf.Ceil(content.Length / 3.0f));
                             myStyle.fontSize = Mathf.CeilToInt(w / 18);
                             myStyle.padding.left = (int)(w * (1 / 3.0f) * .07f);
                             myStyle.padding.right = (int)(w * (1 / 3.0f) * .07f);
-                            myStyle.padding.bottom = (int)(h / Mathf.Ceil(content.Length / 3.0f) * 0.12f);
+                            myStyle.padding.bottom = (int)(h1 / Mathf.Ceil(content.Length / 3.0f) * 0.12f);
 
                             //main grid
                             selectNum = GUILayout.SelectionGrid(selectNum, content, 3,
                                 GUILayout.Width(w),
-                                GUILayout.Height(h));
+                                GUILayout.Height(h1));
 
                             //overlay
                             GUI.SelectionGrid(GUILayoutUtility.GetLastRect(), selectNum,
@@ -1157,7 +1190,7 @@ namespace BodyDouble
 
 
                         //Section Load Toggles
-                        GUILayout.BeginScrollView(new Vector2());
+                        tglPos = GUILayout.BeginScrollView(tglPos, false, false, GUI.skin.horizontalScrollbar, GUIStyle.none, GUILayout.Height(h + bar), GUILayout.ExpandWidth(true));
                         GUILayout.BeginHorizontal();
                         partFields.body = GUILayout.Toggle(partFields.body, "Body", toggleStyle);
                         partFields.face = GUILayout.Toggle(partFields.face, "Face", toggleStyle);
@@ -1178,18 +1211,21 @@ namespace BodyDouble
                         if(persist != cfg.areBodyDoublesPersistant.Value)
                             cfg.areBodyDoublesPersistant.Value = persist;
 
-
-
-
                         GUILayout.BeginHorizontal();
                         if(GUILayout.Button("Use Selected BodyDouble", tmpSty))
-                            foreach(var fashion in lists)
-                                if(selectKey != null)
-                                    fashion.LoadBodyDouble(selectKey, partFields);
+                            if(selectedChar > 0)
+                                bodCtrl.LoadBodyDouble(selectKey, partFields);
+                            else
+                                foreach(var bodDub in lists)
+                                    if(selectKey != null)
+                                        bodDub.LoadBodyDouble(selectKey, partFields);
 
                         if(GUILayout.Button("Use Default BodyDouble", tmpSty))
-                            foreach(var fashion in lists)
-                                fashion.LoadDefaultBodyDouble(partFields);
+                            if(selectedChar > 0)
+                                bodCtrl.LoadDefaultBodyDouble(partFields);
+                            else
+                                foreach(var bodDub in lists)
+                                    bodDub.LoadDefaultBodyDouble(partFields);
                         GUILayout.EndHorizontal();
 
                         GUILayout.BeginHorizontal();
@@ -1197,7 +1233,7 @@ namespace BodyDouble
                         if(GUILayout.Button("Add Card[s]", tmpSty) && lists.Any())
                         {
                             ForeGrounder.SetCurrentForground();
-                            GetNewPresetImages(null);
+                            GetNewPresetImages(bodCtrl);
                             ForeGrounder.RevertForground();
                         }
                         //if(GUILayout.Button("load current coordinate"));
@@ -1214,14 +1250,20 @@ namespace BodyDouble
 
                         GUILayout.BeginHorizontal();
                         if(GUILayout.Button("Remove selected"))
-                            foreach(var fashion in lists)
-                                if(selectKey != null)
-                                    fashion.RemoveBodyDouble(selectKey);
+                            if(selectedChar > 0)
+                                bodCtrl.RemoveBodyDouble(selectKey);
+                            else
+                                foreach(var bodDub in lists)
+                                    bodDub.RemoveBodyDouble(selectKey);
 
                         if(GUILayout.Button("Remove All"))
-                            foreach(var bodDub in lists)
-                                foreach(var all in bodDub.data.Values.ToList())
-                                    bodDub.RemoveBodyDouble(all);
+                            if(selectedChar > 0)
+                                foreach(var all in bodCtrl.data.Values.ToList())
+                                    bodCtrl.RemoveBodyDouble(all);
+                            else
+                                foreach(var bodDub in lists)
+                                    foreach(var all in bodDub.data.Values.ToList())
+                                        bodDub.RemoveBodyDouble(all);
 
                         GUI.color = colour1;
                         GUI.contentColor = colour2;
@@ -1459,7 +1501,7 @@ namespace BodyDouble
 
             void CreatePartToggles()
             {
-                ToggleGroup loadTglGroup = null;
+                // ToggleGroup loadTglGroup = null;
                 var fields = typeof(PartFeilds).GetFields();
 
                 foreach(var field in fields)
@@ -1742,13 +1784,15 @@ namespace BodyDouble
             //var path = paths?.Attempt((s) => s.IsNullOrWhiteSpace() ?
             //throw new Exception() : s).LastOrNull().MakeDirPath();
 
-            SystemFileDialog.ShowDialog("Add all files in this folder (you may have to choose one)",
-               ( Directory.Exists(cfg.lastCoordDir.Value) ?
-                cfg.lastCoordDir.Value : TargetDirectory).MakeDirPath("/", "\\"), 
-                out var paths,
-                FOS.PICKFOLDERS | FOS.DONTADDTORECENT | FOS.NODEREFERENCELINKS |
-                FOS.OKBUTTONNEEDSINTERACTION | FOS.STRICTFILETYPES | FOS.PATHMUSTEXIST
-            );
+            if(!SystemFileDialog.ShowDialog("Add all files in this folder (you may have to choose one)",
+                (Directory.Exists(cfg.lastCoordDir.Value) ?
+                 cfg.lastCoordDir.Value : TargetDirectory).MakeDirPath("/", "\\"),
+                 out var paths,
+                 FOS.PICKFOLDERS | FOS.DONTADDTORECENT | FOS.NODEREFERENCELINKS |
+                 FOS.OKBUTTONNEEDSINTERACTION | FOS.STRICTFILETYPES | FOS.PATHMUSTEXIST
+            ))
+                return;
+
             var pathsArray = paths.Split(';', ',');
 
             var path = pathsArray?.Attempt((s) => s.IsNullOrWhiteSpace() ?
@@ -1769,17 +1813,16 @@ namespace BodyDouble
             //	OpenFileDialog.OpenSaveFileDialgueFlags.OFN_CREATEPROMPT;
             Logger.LogInfo("Game Root Path: " + Directory.GetCurrentDirectory());
 
-            SystemFileDialog.ShowDialog(
-                "Add New Character Card[s] (You can select multiple)",
-               (Directory.Exists(cfg.lastCoordDir.Value) ?
-                cfg.lastCoordDir.Value : TargetDirectory).MakeDirPath("/", "\\"),
-                out var paths,
-                filter: FileFilter,
-                fos: FOS.ALLOWMULTISELECT | FOS.DONTADDTORECENT | FOS.FILEMUSTEXIST |
-                FOS.NODEREFERENCELINKS | FOS.OKBUTTONNEEDSINTERACTION | FOS.STRICTFILETYPES
-            );
-
-            if(paths == null) return;
+            if(!SystemFileDialog.ShowDialog(
+                 "Add New Character Card[s] (You can select multiple)",
+                (Directory.Exists(cfg.lastCoordDir.Value) ?
+                 cfg.lastCoordDir.Value : TargetDirectory).MakeDirPath("/", "\\"),
+                 out var paths,
+                 filter: FileFilter,
+                 fos: FOS.ALLOWMULTISELECT | FOS.DONTADDTORECENT | FOS.FILEMUSTEXIST |
+                 FOS.NODEREFERENCELINKS | FOS.OKBUTTONNEEDSINTERACTION | FOS.STRICTFILETYPES
+            ))
+                return;
 
             //var path = paths?.Attempt((s) => s.IsNullOrWhiteSpace() ?
             //throw new Exception() : s).LastOrNull().MakeDirPath();

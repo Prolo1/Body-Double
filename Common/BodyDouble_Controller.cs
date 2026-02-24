@@ -89,6 +89,9 @@ namespace BodyDouble
         {
             isLoadingDouble = true;
             ChaFileControl.LoadFileLimited(CreateTmpCardFile(data.cardData), ChaControl.sex, parts.face, parts.body, parts.hair, parts.perameter, parts.coordinate);
+#if KOI_API
+            ChaControl.nowCoordinate = ChaControl.chaFile.coordinate[ChaFileControl.status.coordinateType];
+#endif
             BodyReload(parts);
             isLoadingDouble = false;
         }
@@ -107,12 +110,14 @@ namespace BodyDouble
                 Singleton<Character>.Instance.customLoadGCClear = false;
 #endif
 
-//                ChaControl.AssignCoordinate(
-//#if KOI_API
-//                    (ChaFileDefine.CoordinateType)ChaControl.chaFile.status.coordinateType, 
-//#endif
-//                    ChaControl.nowCoordinate
-//                );
+
+                ChaControl.AssignCoordinate(
+#if KOI_API
+                    (ChaFileDefine.CoordinateType)ChaControl.chaFile.status.coordinateType,
+#endif
+                    ChaControl.nowCoordinate
+                );
+
 
                 if(reload)
                     ChaControl.Reload(!parts.coordinate, !parts.face, !parts.hair, !parts.body
@@ -120,12 +125,11 @@ namespace BodyDouble
                             , true
 #endif
                     );
+
+
 #if HONEY_API
                 Singleton<Character>.Instance.customLoadGCClear = true;
 #endif
-
-
-
 
                 if(MakerAPI.InsideMaker)
                 {
