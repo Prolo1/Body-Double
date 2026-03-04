@@ -26,17 +26,17 @@ namespace BodyDouble
             Data
         }
 
-        protected override PluginData UpdateVersionFromPrev(BodyDouble_Controller ctrler, PluginData data)
+        protected override PluginData UpdateVersionFromPrev(BodyDouble_Controller ctrl, PluginData data)
         {
             if(data == null)
-                data = ctrler?.GetExtendedData(true);
+                data = ctrl?.GetExtendedData(true);
 
             return data;
         }
 
-        public override PluginData Load(BodyDouble_Controller ctrler, PluginData data = null)
+        public override PluginData Load(BodyDouble_Controller ctrl, PluginData data = null)
         {
-            data = UpdateVersionFromPrev(ctrler, data);
+            data = UpdateVersionFromPrev(ctrl, data);
             if(data == null) return null;
 
             //ADD CODE HERE
@@ -49,7 +49,7 @@ namespace BodyDouble
                     ((byte[])data.data[DataKeys[(int)LoadDataType.Data]]);
 
                 foreach(var kvp in cardData)
-                    ctrler.AddBodyDouble(kvp.Value);
+                    ctrl.AddBodyDouble(kvp.Value);
 
             }
             catch(Exception e)
@@ -61,7 +61,7 @@ namespace BodyDouble
             return data;
         }
 
-        public override PluginData Save(BodyDouble_Controller ctrler, PluginData data = null)
+        public override PluginData Save(BodyDouble_Controller ctrl, PluginData data = null)
         {
             data = data ?? new PluginData();
             data.version = Version;
@@ -69,10 +69,12 @@ namespace BodyDouble
             //ADD CODE HERE
             try
             {
-                foreach(var bit in ctrler.data)
+                foreach(var bit in ctrl.data)
                     bit.Value?.extras?.Clear(); //don't save extras, since they are not needed and can cause issues with serialization
 
-                data.data[DataKeys[(int)LoadDataType.Data]] = LZ4MessagePackSerializer.Serialize(ctrler.data);
+                data.data[DataKeys[(int)LoadDataType.Data]] = LZ4MessagePackSerializer.Serialize(ctrl.data);
+
+                ctrl.SetExtendedData(data);
             }
             catch(Exception e)
             {

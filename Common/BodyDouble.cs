@@ -39,7 +39,7 @@ namespace BodyDouble
 
         public const string GUID = "prolo.bodydouble";//NEVER CHANGE THIS
         public const string ModName = "Body Double";
-        public const string Version = "0.0.1";
+        public const string Version = "0.0.2";
         public const string Description =
             @"Adds the ability to save character cards to another " +
             @"character card and load by category (i.e. face, body, hair...).";
@@ -58,7 +58,7 @@ namespace BodyDouble
             //Main
             public ConfigEntry<bool> enable { set; get; }
             public ConfigEntry<bool> areBodyDoublesPersistant { set; get; }
-            public ConfigEntry<string> lastCoordDir { get; set; }
+            public ConfigEntry<string> lastCardDir { get; set; }
             public ConfigEntry<KeyboardShortcut> openFloatingMenu { get; set; }
 
             // studio
@@ -83,41 +83,171 @@ namespace BodyDouble
 
         void ConfigInit()
         {
+            #region Values
+            int secIndex = 0;
+            int secIndex2 = 99;
+            int index = 0;
+            //bool enableBGUI = true;
+
+            string main = "";
+            //string mainx =
+            //$"{secIndex++:d2}. " + main;
+
+            string floating = "Floating GUI";
+            string floatingx =
+            $"{secIndex++:d2}. " + floating;
+
+            string stud = "Studio";
+            string studx =
+            $"{secIndex++:d2}. " + stud;
+
+            string adv = "Advanced";
+            string advx =
+            $"{secIndex2--:d2}. " + adv;
+            #endregion
 
             ConfigFile binding = Instance.Config;
             cfg = new BDConfig()
             {
                 //Main
-                enable = binding.Bind<bool>("", "Enable", true, "Enable or disable Body Double."),
-                lastCoordDir = binding.Bind<string>("", "Last Coordinate Directory", "", "The last directory used to load or save Body Double coordinates."),
-                areBodyDoublesPersistant = binding.Bind<bool>("", "Are BodyDoubles Persistant", false, "If enabled, Body Doubles will persist between sessions."),
-                openFloatingMenu = binding.Bind<KeyboardShortcut>("", "Open Floating Menu Shortcut", new KeyboardShortcut(KeyCode.D, KeyCode.LeftControl, KeyCode.LeftShift), "The keyboard shortcut used to open the Body Double floating menu."),
+                enable = binding.Bind(main, "Enable", true,
+                new ConfigDescription("Enable or disable Body Double.", null,
+                new ConfigurationManagerAttributes()
+                {
+                    Order = index--,
+                    Category = main
+                })),
+                areBodyDoublesPersistant = binding.Bind(main, "Are BodyDoubles Persistant", false,
+                new ConfigDescription("If enabled, Body Doubles will persist between sessions.", null,
+                new ConfigurationManagerAttributes()
+                {
+                    Order = index--,
+                    Category = main
+
+                })),
+                openFloatingMenu = binding.Bind(main, "Open Floating Menu Shortcut",
+                new KeyboardShortcut(KeyCode.D, KeyCode.LeftControl, KeyCode.LeftShift),
+                new ConfigDescription("The keyboard shortcut used to open the Body Double floating menu.", null,
+                new ConfigurationManagerAttributes()
+                {
+                    Order = index--,
+                    Category = main
+                })),
+                enableTooltips = binding.Bind<bool>(main, "Enable Tooltips", true,
+                new ConfigDescription("If enabled, tooltips will be shown for Body Double Studio UI elements.", null,
+                new ConfigurationManagerAttributes()
+                {
+                    Order = index--,
+                    Category = main
+                })),
+                lastCardDir = binding.Bind(main, "Last Card Directory", "",
+                new ConfigDescription("The last directory used to load or save Body Double Card.", null,
+                new ConfigurationManagerAttributes()
+                {
+                    Order = index--,
+                    Category = main,
+                    IsAdvanced = true,
+                })),
+
+                //Floating GUI
+                enableBGUI = binding.Bind<bool>(floating, "Enable Custom Background Image", false,
+                new ConfigDescription("If enabled, the Body Double Studio UI will be available in the Character Maker Studio.", null,
+                new ConfigurationManagerAttributes()
+                {
+                    Order = index--,
+                    Category = floatingx
+                })),
+                useCreatorDefaultBG = binding.Bind<bool>(floating, "Use Creator Default Background", false,
+                new ConfigDescription("If enabled, the default background of the Character Creator will be used instead of a custom image.", null,
+                new ConfigurationManagerAttributes()
+                {
+                    Order = index--,
+                    Category = floatingx
+                })),
+                bgUIImagePath = binding.Bind<string>(floating, "Background Image Path", "",
+                new ConfigDescription("The path to the background image used in the Body Double Studio UI.", null,
+                new ConfigurationManagerAttributes()
+                {
+                    Order = index--,
+                    Category = floatingx
+                })),
+                floatingUIWidth = binding.Bind<float>(floating, "Floating UI Width", 0.5f,
+                new ConfigDescription("The width of the Body Double Floating UI.", null,
+                new ConfigurationManagerAttributes()
+                {
+                    Order = index--,
+                    Category = floatingx,
+                    IsAdvanced = true,
+                })),
+                makerWinRec = binding.Bind<Rect>(floating, "Maker Window Rect", new Rect(100, 100, 350, 500),
+                new ConfigDescription("The position and size of the Body Double Maker UI window.", null,
+                new ConfigurationManagerAttributes
+                {
+                    CustomDrawer = CustomRectDrawer(),
+                    Order = index--,
+                    Category = floatingx,
+                    IsAdvanced = true,
+                })),
+                makerSortOffset = binding.Bind<Rect>(floating, "Maker Sort Offset", BodyDouble_GUI.offsetRect,
+                new ConfigDescription("The offset applied to the sorting of the Body Double Maker UI.", null,
+                new ConfigurationManagerAttributes
+                {
+                    CustomDrawer = CustomRectDrawer(),
+                    Order = index--,
+                    Category = floatingx,
+                    IsAdvanced = true,
+                })),
 
                 //studio
-                enableBGUI = binding.Bind<bool>("", "Enable Custom Background Image", false, "If enabled, the Body Double Studio UI will be available in the Character Maker Studio."),
-                useCreatorDefaultBG = binding.Bind<bool>("", "Use Creator Default Background", false, "If enabled, the default background of the Character Creator will be used instead of a custom image."),
-                bgUIImagePath = binding.Bind<string>("", "Background Image Path", "", "The path to the background image used in the Body Double Studio UI."),
-                floatingUIWidth = binding.Bind<float>("", "Studio UI Width", 0.5f, "The width of the Body Double Studio UI."),
-                studioWinRec = binding.Bind<Rect>("", "Studio Window Rect", new Rect(100, 100, 350, 500), new ConfigDescription("The position and size of the Body Double Studio UI window.", null,
-                new ConfigurationManagerAttributes { CustomDrawer = CustomRectDrawer() })),
-                studioSortOffset = binding.Bind<Rect>("", "Studio Sort Offset", BodyDouble_GUI.offsetRect, new ConfigDescription("The offset applied to the sorting of the Body Double Studio UI.", null,
-                new ConfigurationManagerAttributes { CustomDrawer = CustomRectDrawer() })),
-                makerWinRec = binding.Bind<Rect>("", "Maker Window Rect", new Rect(100, 100, 350, 500), new ConfigDescription("The position and size of the Body Double Maker UI window.", null,
-                new ConfigurationManagerAttributes { CustomDrawer = CustomRectDrawer() })),
-                makerSortOffset = binding.Bind<Rect>("", "Maker Sort Offset", BodyDouble_GUI.offsetRect, new ConfigDescription("The offset applied to the sorting of the Body Double Maker UI.", null,
-                new ConfigurationManagerAttributes { CustomDrawer = CustomRectDrawer() })),
+                studioWinRec = binding.Bind<Rect>(studx, "Studio Window Rect", new Rect(100, 100, 350, 500),
+                new ConfigDescription("The position and size of the Body Double Studio UI window.", null,
+                new ConfigurationManagerAttributes
+                {
+                    CustomDrawer = CustomRectDrawer(),
+                    Order = index--,
+                    Category = studx,
+                    IsAdvanced = true,
+                })),
+                studioSortOffset = binding.Bind<Rect>(stud, "Studio Sort Offset", BodyDouble_GUI.offsetRect,
+                new ConfigDescription("The offset applied to the sorting of the Body Double Studio UI.", null,
+                new ConfigurationManagerAttributes
+                {
+                    CustomDrawer = CustomRectDrawer(),
+                    Order = index--,
+                    Category = studx,
+                    IsAdvanced = true,
+                })),
 
                 //Advanced 
-                resetOnLaunch = binding.Bind<bool>("", "Reset On Launch", false, "If enabled, on the next launch all Body Double data will be reset. This value will then be reset to false."),
-                debug = binding.Bind<bool>("", "Debug", false, "If enabled, debug logs will be printed to the BepInEx log file."),
-                enableTooltips = binding.Bind<bool>("", "Enable Tooltips", true, "If enabled, tooltips will be shown for Body Double Studio UI elements."),
-                viewportUISpace = binding.Bind<float>("", "Viewport UI Space",
+                resetOnLaunch = binding.Bind<bool>(adv, "Reset On Launch", false,
+                new ConfigDescription("If enabled, on the next launch all Body Double data will be reset. This value will then be reset to false.", null,
+                new ConfigurationManagerAttributes()
+                {
+                    Order = index--,
+                    Category = advx,
+                    IsAdvanced = true,
+                })),
+                debug = binding.Bind<bool>(adv, "Debug", false,
+                new ConfigDescription("If enabled, debug logs will be printed to the BepInEx log file.", null,
+                new ConfigurationManagerAttributes()
+                {
+                    Order = index--,
+                    Category = advx,
+                    IsAdvanced = true,
+                })),
+                viewportUISpace = binding.Bind<float>(adv, "Viewport UI Space",
 #if HONEY_API
                     0.39f,
 #elif KOI_API
                     0.65f,
 #endif
-                "The percent of vertical space the scrollable Maker UI window will occupy in the viewport."),
+                new ConfigDescription("The percent of vertical space the scrollable Maker UI window will occupy in the viewport.", null,
+                new ConfigurationManagerAttributes()
+                {
+                    Order = index--,
+                    Category = advx,
+                    IsAdvanced = true,
+                })),
 
             };
 

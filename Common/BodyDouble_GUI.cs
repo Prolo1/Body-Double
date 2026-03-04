@@ -1764,7 +1764,7 @@ namespace BodyDouble
 
         public static string DefaultCardDirectory { get => (Directory.GetCurrentDirectory() + "/UserData/chara/").MakeDirPath("/", "\\"); }
 
-        public static string TargetDirectory { get => Directory.Exists(cfg.lastCoordDir.Value) && !cfg.lastCoordDir.Value.IsNullOrWhiteSpace() ? cfg.lastCoordDir.Value : DefaultCardDirectory; }
+        public static string TargetDirectory { get => Directory.Exists(cfg.lastCardDir.Value) && !cfg.lastCardDir.Value.IsNullOrWhiteSpace() ? cfg.lastCardDir.Value : DefaultCardDirectory; }
 
         #endregion
 
@@ -1785,8 +1785,8 @@ namespace BodyDouble
             //throw new Exception() : s).LastOrNull().MakeDirPath();
 
             if(!SystemFileDialog.ShowDialog("Add all files in this folder (you may have to choose one)",
-                (Directory.Exists(cfg.lastCoordDir.Value) ?
-                 cfg.lastCoordDir.Value : TargetDirectory).MakeDirPath("/", "\\"),
+                (Directory.Exists(cfg.lastCardDir.Value) ?
+                 cfg.lastCardDir.Value : TargetDirectory).MakeDirPath("/", "\\"),
                  out var paths,
                  FOS.PICKFOLDERS | FOS.DONTADDTORECENT | FOS.NODEREFERENCELINKS |
                  FOS.OKBUTTONNEEDSINTERACTION | FOS.STRICTFILETYPES | FOS.PATHMUSTEXIST
@@ -1798,9 +1798,9 @@ namespace BodyDouble
             var path = pathsArray?.Attempt((s) => s.IsNullOrWhiteSpace() ?
             throw new Exception() : s).LastOrNull().MakeDirPath();
 
-            cfg.lastCoordDir.Value = path?.Substring(0, path.LastIndexOf('/')) ?? TargetDirectory;
+            cfg.lastCardDir.Value = path?.Substring(0, path.LastIndexOf('/')) ?? TargetDirectory;
 
-            OnCoordinateFolderObtained(cfg.lastCoordDir.Value, ctrl);
+            OnCoordinateFolderObtained(cfg.lastCardDir.Value, ctrl);
             if(path.IsNullOrWhiteSpace())
                 Illusion.Game.Utils.Sound.Play(SystemSE.ok_l);
             else
@@ -1815,8 +1815,8 @@ namespace BodyDouble
 
             if(!SystemFileDialog.ShowDialog(
                  "Add New Character Card[s] (You can select multiple)",
-                (Directory.Exists(cfg.lastCoordDir.Value) ?
-                 cfg.lastCoordDir.Value : TargetDirectory).MakeDirPath("/", "\\"),
+                (Directory.Exists(cfg.lastCardDir.Value) ?
+                 cfg.lastCardDir.Value : TargetDirectory).MakeDirPath("/", "\\"),
                  out var paths,
                  filter: FileFilter,
                  fos: FOS.ALLOWMULTISELECT | FOS.DONTADDTORECENT | FOS.FILEMUSTEXIST |
@@ -1829,7 +1829,7 @@ namespace BodyDouble
             var pathsAray = paths.MakeDirPath().Split('|');//they split by this character
 
             Logger.LogInfo("Paths obtained: " + paths);
-            cfg.lastCoordDir.Value = pathsAray.LastOrNull()?.Substring(0, pathsAray.LastOrNull().LastIndexOf('/')) ?? TargetDirectory;
+            cfg.lastCardDir.Value = pathsAray.LastOrNull()?.Substring(0, pathsAray.LastOrNull().LastIndexOf('/')) ?? TargetDirectory;
 
             OnCoordinateImagesObtained(ref pathsAray, ctrl);
             if(paths.IsNullOrWhiteSpace())
@@ -1917,8 +1917,8 @@ namespace BodyDouble
 
             SystemFileDialog.ShowDialog(
                "Add New Character Card[s] (You can select multiple)",
-               Directory.Exists(cfg.lastCoordDir.Value) ?
-               cfg.lastCoordDir.Value : TargetDirectory,
+               Directory.Exists(cfg.lastCardDir.Value) ?
+               cfg.lastCardDir.Value : TargetDirectory,
                out var paths,
                filter: FileFilter + ";*.jpg;*.jpeg;*.webp",
                fos: FOS.DONTADDTORECENT | FOS.FILEMUSTEXIST |
