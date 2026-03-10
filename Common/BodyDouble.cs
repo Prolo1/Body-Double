@@ -39,7 +39,7 @@ namespace BodyDouble
 
         public const string GUID = "prolo.bodydouble";//NEVER CHANGE THIS
         public const string ModName = "Body Double";
-        public const string Version = "0.0.2";
+        public const string Version = "0.0.3";
         public const string Description =
             @"Adds the ability to save character cards to another " +
             @"character card and load by category (i.e. face, body, hair...).";
