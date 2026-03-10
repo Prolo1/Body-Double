@@ -59,7 +59,7 @@ namespace BodyDouble
             }
 
             if(!cfg.areBodyDoublesPersistant.Value)
-                data.Clear();
+                RemoveAllBodyDoubles();
 
             extData = this.LoadExtData<CurrentSaveLoadManager, Ctrler>();
 
@@ -80,9 +80,15 @@ namespace BodyDouble
         public void RemoveBodyDouble(BodyDoubleData data)
         {
             if(data == null) return;
-            this.data.Remove(data.name);
 
             BodyDouble_GUI.RemoveBodyDouble(data);
+            this.data.Remove(data.name);
+        }
+
+        public void RemoveAllBodyDoubles()
+        {
+            BodyDouble_GUI.RemoveAllBodyDoubles();
+            this.data.Clear();
         }
 
         public void LoadBodyDouble(BodyDoubleData data, PartFeilds parts)
@@ -152,22 +158,30 @@ namespace BodyDouble
 
         private string CreateTmpCardFile(byte[] data)
         {
-            string tmpLocation = $"{(Directory.GetCurrentDirectory() + "/userdata/Tmp/BDouble.png").MakeDirPath("/", "\\")}";
-
-            File.WriteAllBytes(tmpLocation, data);
-
-            var lastSave = LastCardSaveLocation;
-
-            if(File.Exists(lastSave))
+            string tmpLocation = $"{(Directory.GetCurrentDirectory() + "/UserData/Tmp/BDouble.png").MakeDirPath("/", "\\")}";
+            try
             {
-                if(File.Exists(tmpLocation))
-                    File.Delete(tmpLocation);
-                File.Move(lastSave, tmpLocation);
+
+                File.WriteAllBytes(tmpLocation, data);
+
+                var lastSave = LastCardSaveLocation;
+
+                if(File.Exists(lastSave))
+                {
+                    if(File.Exists(tmpLocation))
+                        File.Delete(tmpLocation);
+                    File.Move(lastSave, tmpLocation);
+                }
+
+                if(!File.Exists(tmpLocation))
+                    throw new FileNotFoundException($"Could not create tmp file: {tmpLocation}");
+
             }
-
-            if(!File.Exists(tmpLocation))
-                throw new FileNotFoundException($"Could not create tmp file: {tmpLocation}");
-
+            catch(Exception e)
+            {
+                Logger.LogError($"{e}");
+                tmpLocation = null;
+            }
             return tmpLocation;
         }
 
@@ -221,6 +235,19 @@ namespace BodyDouble
             }
 
             public List<object> extras = new List<object>();
+
+            public BodyDoubleData Clone()
+            {
+                var tmp = new BodyDoubleData()
+                {
+                    cardData = cardData?.ToArray(),
+                    name = name + "",
+                    created = new DateTime(created.Ticks),
+                    updated = DateTime.Now,
+                };
+                tmp.extras.AddRange(extras);
+                return tmp;
+            }
         }
 
         public class PartFeilds
@@ -237,7 +264,6 @@ namespace BodyDouble
         #region Overrides
         protected override void OnReload(GameMode currentGameMode, bool maintainState)
         {
-
             OnCharaReload(currentGameMode, maintainState);
         }
 

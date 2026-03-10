@@ -86,7 +86,7 @@ namespace BodyDouble
             #region Values
             int secIndex = 0;
             int secIndex2 = 99;
-            int index = 0;
+            int index = int.MaxValue;
             //bool enableBGUI = true;
 
             string main = "";

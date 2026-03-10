@@ -53,6 +53,7 @@ namespace BodyDouble
     using static BodyDouble_Core;
     using static KKAPI.Maker.MakerAPI;
     using static KKAPI.Studio.StudioAPI;
+    using static KKAPI.Utilities.Curve;
     using static KKAPI.Utilities.GlobalTooltips;
     using static ProloAPI.Extensions.PGeneral;
     using static ProloAPI.Utilities.PGeneral;
@@ -1745,9 +1746,13 @@ namespace BodyDouble
         {
 
             yield return new WaitWhile(() => gridLayout == null);
+            //   var tgls = tglGroup.m_Toggles;
+            var tmpList =
+             template.ControlObject.transform.parent.GetComponentsInChildren<Toggle>();
 
-            foreach(var tmp in tglGroup.ActiveToggles())
-                Destroy(tmp.transform.parent.gameObject);
+            foreach(var tmp in tmpList)
+                if(tmp.transform.parent.gameObject != template.ControlObject)
+                    Destroy(tmp.transform.parent.gameObject);
 
             currentCoord = null;
 
